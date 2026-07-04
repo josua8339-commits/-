@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다른 색을 찾아라! - 시립금천청소년센터</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #2b2d42;
+            --text-muted: #8d99ae;
+            --primary-color: #4A90E2;
+            --secondary-color: #edf2f4;
+            --vote-color: #ff477e;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --board-size: min(85vw, 420px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .game-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 480px;
+            min-height: 600px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 30px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .logo-area {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            background-color: #eef5fc;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .game-title .highlight {
+            color: #4CC9F0;
+            position: relative;
+            display: inline-block;
+        }
+
+        .game-desc {
+            font-size: 0.95rem;
+            color: #4a4e69;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            word-break: keep-all;
+        }
+
+        .game-desc .emp {
+            color: var(--vote-color);
+            font-weight: 700;
+        }
+
+        .sub-desc {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .btn {
+            width: 100%;
+            max-width: 280px;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            outline: none;
+            margin-bottom: 12px;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            padding: 10px 15px;
+        }
+
+        .btn-vote {
+            background-color: var(--vote-color);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 71, 126, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+        }
+
+        .header-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .header-item .label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .header-item .value {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .game-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 5px;
+            margin-bottom: 15px;
+        }
+
+        .hearts {
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        .best-score {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .tile-board {
+            width: var(--board-size);
+            height: var(--board-size);
+            display: grid;
+            gap: 8px;
+            margin: 10px 0 25px 0;
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 16px;
+        }
+
+        .tile {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.05s ease;
+            border: none;
+            outline: none;
+        }
+
+        .tile:active {
+            transform: scale(0.94);
+        }
+
+        .result-card {
+            background-color: #f8f9fa;
+            width: 100%;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .result-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .res-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .res-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        .vote-prompt {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            color: #4a4e69;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); box-shadow: 0 4px 20px rgba(255, 71, 126, 0.5); }
+            100% { transform: scale(1); }
+        }
+
+        .shake {
+            animation: shakeEffect 0.4s ease-in-out;
+        }
+
+        @keyframes shakeEffect {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        #confetti-container {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #ff0;
+            opacity: 0.8;
+            border-radius: 50%;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div id="start-screen" class="screen active">
+            <div class="logo-area">시립금천청소년센터 대표 색상 선정</div>
+            <h1 class="game-title">다른 색을<br><span class="highlight">찾아라!</span></h1>
+            <p class="game-desc">
+                화면의 타일 중 <strong class="emp">단 하나만</strong> 색상이 다릅니다!<br>
+                스테이지가 올라갈수록 구분이 어려워집니다.
+            <br>    정답을 찾아 터치해 주세요. <br><br>
+                <span class="sub-desc">🎯 게임이 끝나면 센터를 빛낼 대표 컬러 투표에 참여해 주세요!
+             <br> -시립금천청소년센터 청소년운영위원회 나래누리-  </span>
+          
+            </p>
+            <button id="btn-start" class="btn btn-primary" aria-label="게임 시작">게임 시작하기</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="header-item">
+                    <span class="label">STAGE</span>
+                    <span id="ui-stage" class="value">1</span>
+                </div>
+                <div class="header-item">
+                    <span class="label">SCORE</span>
+                    <span id="ui-score" class="value">0</span>
+                </div>
+                <div class="header-item">
+                    <span class="label">TIME</span>
+                    <span id="ui-time" class="value">15.0</span>
+                </div>
+            </div>
+
+            <div class="game-status">
+                <div id="ui-hearts" class="hearts" aria-label="남은 기회">
+                    <span class="heart">❤️</span>
+                    <span class="heart">❤️</span>
+                    <span class="heart">❤️</span>
+                </div>
+                <div class="best-score">
+                    TOP: <span id="ui-best-score">0</span>
+                </div>
+            </div>
+
+            <div id="tile-board" class="tile-board"></div>
+
+            <div class="game-footer">
+                <button id="btn-reset" class="btn btn-secondary" aria-label="게임 재시작">다시 시작</button>
+            </div>
+        </div>
+
+        <div id="game-over-screen" class="screen">
+            <h2 id="game-over-title" class="screen-title">게임 종료!</h2>
+            <p class="result-summary"></p>
+            
+            <div class="result-card">
+                <div class="result-item">
+                    <span class="res-label">최종 점수</span>
+                    <span id="res-score" class="res-value">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="res-label">도달 스테이지</span>
+                    <span id="res-stage" class="res-value">1</span>
+                </div>
+            </div>
+
+            <div class="action-area">
+                <p class="vote-prompt">✨ 이제 여러분이 플레이한 색상 중<br>가장 마음에 드는 미래의 브랜드 컬러를 골라주세요!</p>
+                <button id="btn-vote" class="btn btn-vote" aria-label="대표 색상 투표하러 가기(새 창)">
+                    🗳️ 대표 색상 투표하러 가기
+                </button>
+                <button id="btn-restart" class="btn btn-secondary" aria-label="게임 다시하기">
+                    다시 도전하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confetti-container"></div>
+
+    <script>
+        // 요청하신 새로운 설문지 주소 적용 완료
+        const VOTE_URL = "https://forms.gle/U8wnVGJVXdugN8ox5";
+
+        const CANDIDATE_COLORS = [
+            { name: "Morning Sky Blue", hex: "#87CEFA" },
+            { name: "Electric Light Blue", hex: "#4CC9F0" },
+            { name: "Morning Baby Blue", hex: "#89CFF0" },
+            { name: "Ocean Blue", hex: "#4A90E2" }
+        ];
+
+        const STAGE_CONFIGS = {
+            1: { gridSize: 2, timeLimit: 15, colorDiff: 45 },
+            2: { gridSize: 3, timeLimit: 12, colorDiff: 35 },
+            3: { gridSize: 4, timeLimit: 10, colorDiff: 25 },
+            4: { gridSize: 5, timeLimit: 8,  colorDiff: 18 },
+            5: { gridSize: 6, timeLimit: 7,  colorDiff: 12 },
+            6: { gridSize: 7, timeLimit: 6,  colorDiff: 8 },
+            7: { gridSize: 7, timeLimit: 5,  colorDiff: 5 }
+        };
+        const MAX_STAGE = 7;
+
+        let currentStage = 1;
+        let currentScore = 0;
+        let remainingHearts = 3;
+        let timeLeft = 15.0;
+        let timerId = null;
+        let bestScore = localStorage.getItem("gch_best_score") || 0;
+
+        const screens = {
+            start: document.getElementById("start-screen"),
+            game: document.getElementById("game-screen"),
+            gameOver: document.getElementById("game-over-screen")
+        };
+
+        const ui = {
+            stage: document.getElementById("ui-stage"),
+            score: document.getElementById("ui-score"),
+            time: document.getElementById("ui-time"),
+            hearts: document.getElementById("ui-hearts"),
+            bestScore: document.getElementById("ui-best-score"),
+            board: document.getElementById("tile-board"),
+            resScore: document.getElementById("res-score"),
+            resStage: document.getElementById("res-stage"),
+            gameOverTitle: document.getElementById("game-over-title")
+        };
+
+        const soundEffect = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            play(type) {
+                this.init();
+                if (!this.ctx) return;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                const now = this.ctx.currentTime;
+
+                if (type === "correct") {
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(783.99, now + 0.08);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now); osc.stop(now + 0.25);
+                } else if (type === "wrong") {
+                    osc.type = "triangle";
+                    osc.frequency.setValueAtTime(220.00, now);
+                    osc.frequency.setValueAtTime(146.83, now + 0.12);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now); osc.stop(now + 0.3);
+                } else if (type === "gameover") {
+                    osc.type = "sawtooth";
+                    osc.frequency.setValueAtTime(329.63, now);
+                    osc.frequency.setValueAtTime(261.63, now + 0.15);
+                    osc.frequency.setValueAtTime(196.00, now + 0.3);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(now); osc.stop(now + 0.6);
+                }
+            }
+        };
+
+        function initGame() {
+            ui.bestScore.textContent = bestScore;
+            
+            document.getElementById("btn-start").addEventListener("click", () => changeScreen("game"));
+            document.getElementById("btn-reset").addEventListener("click", resetToMain);
+            document.getElementById("btn-restart").addEventListener("click", () => changeScreen("game"));
+            document.getElementById("btn-vote").addEventListener("click", () => {
+                window.open(VOTE_URL, "_blank");
+            });
+        }
+
+        function changeScreen(screenType) {
+            Object.values(screens).forEach(scr => scr.classList.remove("active"));
+            if (screenType === "game") {
+                screens.game.classList.add("active");
+                startGame();
+            } else if (screenType === "gameOver") {
+                screens.gameOver.classList.add("active");
+            } else {
+                screens.start.classList.add("active");
+            }
+        }
+
+        function startGame() {
+            currentStage = 1;
+            currentScore = 0;
+            remainingHearts = 3;
+            updateHeartsUI();
+            renderNextStage();
+        }
+
+        function resetToMain() {
+            clearInterval(timerId);
+            changeScreen("start");
+        }
+
+        function renderNextStage() {
+            clearInterval(timerId);
+            const config = STAGE_CONFIGS[currentStage];
+            timeLeft = config.timeLimit;
+            
+            ui.stage.textContent = currentStage;
+            ui.score.textContent = currentScore;
+            ui.time.textContent = timeLeft.toFixed(1);
+            
+            ui.board.style.gridTemplateColumns = `repeat(${config.gridSize}, 1fr)`;
+            ui.board.style.gridTemplateRows = `repeat(${config.gridSize}, 1fr)`;
+            ui.board.innerHTML = "";
+            
+            const randomSeedColor = CANDIDATE_COLORS[Math.floor(Math.random() * CANDIDATE_COLORS.length)].hex;
+            const { baseColor, targetColor } = generateColorPair(randomSeedColor, config.colorDiff);
+            
+            const totalTiles = config.gridSize * config.gridSize;
+            const answerIndex = Math.floor(Math.random() * totalTiles);
+            const fragment = document.createDocumentFragment();
+            
+            for (let i = 0; i < totalTiles; i++) {
+                const tile = document.createElement("button");
+                tile.classList.add("tile");
+                
+                if (i === answerIndex) {
+                    tile.style.backgroundColor = targetColor;
+                    tile.dataset.answer = "true";
+                } else {
+                    tile.style.backgroundColor = baseColor;
+                    tile.dataset.answer = "false";
+                }
+                
+                tile.addEventListener("click", handleTileClick);
+                fragment.appendChild(tile);
+            }
+            ui.board.appendChild(fragment);
+            
+            timerId = setInterval(() => {
+                timeLeft -= 0.1;
+                if (timeLeft <= 0) {
+                    timeLeft = 0;
+                    ui.time.textContent = "0.0";
+                    endGame(false, "시간 초과!");
+                } else {
+                    ui.time.textContent = timeLeft.toFixed(1);
+                }
+            }, 100);
+        }
+
+        function generateColorPair(hex, diff) {
+            let r = parseInt(hex.slice(1, 3), 16);
+            let g = parseInt(hex.slice(3, 5), 16);
+            let b = parseInt(hex.slice(5, 7), 16);
+            const direction = Math.random() > 0.5 ? 1 : -1;
+            
+            let tr = Math.max(0, Math.min(255, r + (diff * direction)));
+            let tg = Math.max(0, Math.min(255, g + (diff * direction)));
+            let tb = Math.max(0, Math.min(255, b + (diff * direction)));
+            
+            if (r === tr && g === tg && b === tb) {
+                tr = r > 128 ? r - diff : r + diff;
+            }
+            return {
+                baseColor: `rgb(${r}, ${g}, ${b})`,
+                targetColor: `rgb(${tr}, ${tg}, ${tb})`
+            };
+        }
+
+        function handleTileClick(e) {
+            const isAnswer = e.target.dataset.answer === "true";
+            if (isAnswer) {
+                soundEffect.play("correct");
+                createConfetti();
+                currentScore += Math.floor(timeLeft * 10) + (currentStage * 10);
+                
+                if (currentStage < MAX_STAGE) {
+                    currentStage++;
+                    renderNextStage();
+                } else {
+                    endGame(true, "올 클리어!");
+                }
+            } else {
+                soundEffect.play("wrong");
+                remainingHearts--;
+                updateHeartsUI();
+                ui.board.classList.add("shake");
+                setTimeout(() => ui.board.classList.remove("shake"), 400);
+                
+                if (remainingHearts <= 0) {
+                    endGame(false, "기회 모두 소진!");
+                }
+            }
+        }
+
+        function updateHeartsUI() {
+            ui.hearts.innerHTML = "";
+            for (let i = 0; i < 3; i++) {
+                const heartSpan = document.createElement("span");
+                heartSpan.textContent = i < remainingHearts ? "❤️" : "🤍";
+                ui.hearts.appendChild(heartSpan);
+            }
+        }
+
+        function createConfetti() {
+            const container = document.getElementById("confetti-container");
+            const colors = ["#87CEFA", "#4CC9F0", "#89CFF0", "#4A90E2", "#ff477e"];
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement("div");
+                particle.classList.add("confetti");
+                particle.style.left = Math.random() * 100 + "vw";
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.transform = `scale(${Math.random() * 1.2 + 0.5})`;
+                const duration = Math.random() * 1 + 0.8;
+                particle.style.animationDuration = duration + "s";
+                container.appendChild(particle);
+                setTimeout(() => particle.remove(), duration * 1000);
+            }
+        }
+
+        function endGame(isAllClear, message) {
+            clearInterval(timerId);
+            soundEffect.play("gameover");
+            if (currentScore > bestScore) {
+                bestScore = currentScore;
+                localStorage.setItem("gch_best_score", bestScore);
+            }
+            ui.gameOverTitle.textContent = isAllClear ? "🏆 올 클리어! 🏆" : "게임 종료";
+            ui.resScore.textContent = currentScore;
+            ui.resStage.textContent = currentStage;
+            changeScreen("gameOver");
+        }
+
+        document.addEventListener("DOMContentLoaded", initGame);
+    </script>
+</body>
+</html>
