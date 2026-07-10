@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>다른 색을 찾아라! - 시립금천청소년센터</title>
+    <title>시립금천청소년센터의 대표색을 정해주세요!</title>
     <style>
         :root {
             --bg-color: #f4f7f6;
@@ -64,7 +64,7 @@
         }
 
         .logo-area {
-            font-size: 0.9rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--primary-color);
             background-color: #eef5fc;
@@ -296,6 +296,19 @@
             0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
+  .footer-logo {
+    position: fixed;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.footer-logo img {
+    width: 120px;
+    height: auto;
+}
     </style>
 </head>
 <body>
@@ -637,5 +650,8 @@
 
         document.addEventListener("DOMContentLoaded", initGame);
     </script>
+    <div class="footer-logo">
+    <img src="logo.png" alt="센터 로고">
+</div>
 </body>
 </html>
