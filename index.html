@@ -306,7 +306,7 @@
 }
 
 .footer-logo img {
-    width: 250px;
+    width: 120px;
     height: auto;
 }
     </style>
@@ -380,10 +380,7 @@
                 <p class="vote-prompt">🎉 미션 클리어 🎉 <br>이제 우리 센터를 대표할 <strong class="emp">단 하나의 색을</strong> <br> 여러분이 함께 선택해주세요.🥳 </p>
                 <button id="btn-vote" class="btn btn-vote" aria-label="대표 색상 투표하러 가기(새 창)">
                     🗳️ 대표 색상 투표하러 가기
-                </button>
-                <button id="btn-restart" class="btn btn-secondary" aria-label="게임 다시하기">
-                    다시 도전하기
-                </button>
+        
             </div>
         </div>
     </div>
@@ -485,7 +482,6 @@
             
             document.getElementById("btn-start").addEventListener("click", () => changeScreen("game"));
             document.getElementById("btn-reset").addEventListener("click", resetToMain);
-            document.getElementById("btn-restart").addEventListener("click", () => changeScreen("game"));
             document.getElementById("btn-vote").addEventListener("click", () => {
                 window.open(VOTE_URL, "_blank");
             });
